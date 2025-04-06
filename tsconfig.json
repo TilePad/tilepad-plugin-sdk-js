@@ -1,0 +1,49 @@
+{
+  "compilerOptions": {
+    /* Language & Module */
+    "target": "ES2021", // Modern output (adjust as needed)
+    "module": "ESNext", // ESM or change to "CommonJS" if needed
+    "moduleResolution": "node",
+    "lib": ["ES2021"],
+    "allowJs": false,
+    "resolveJsonModule": true,
+    "esModuleInterop": true,
+    "forceConsistentCasingInFileNames": true,
+    "noEmit": true, // Prevents JS output; use tsc just for type-checking
+    "isolatedModules": true, // Helpful for using Babel or other transpilers
+    "declaration": true,
+    "declarationDir": "dist",
+
+    /* Paths & Structure */
+    "rootDir": "src",
+    "outDir": "dist",
+    "baseUrl": ".", // For absolute imports (e.g. from 'src/utils')
+    "paths": {
+      "@/*": ["src/*"]
+    },
+
+    /* Type Safety */
+    "strict": true, // Enables all strict flags below
+    "noImplicitAny": true,
+    "strictNullChecks": true,
+    "strictFunctionTypes": true,
+    "strictBindCallApply": true,
+    "noImplicitThis": true,
+    "alwaysStrict": true,
+    "exactOptionalPropertyTypes": true,
+
+    /* Lint-like Options */
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "noFallthroughCasesInSwitch": true,
+
+    /* Project Experience */
+    "skipLibCheck": false, // Set true if you're getting annoying node_modules issues
+    "types": ["node"], // Include global types (e.g. Node.js globals like `process`)
+
+    /* Experimental (Optional) */
+    "useDefineForClassFields": true // Recommended for ESNext class behavior
+  },
+  "include": ["src"],
+  "exclude": ["node_modules", "dist", "**/*.test.ts"]
+}
