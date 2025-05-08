@@ -166,6 +166,22 @@ class TilepadPlugin {
     });
   }
 
+  setTileIcon(tileId: string, icon: any) {
+    this.sendMessage({
+      type: "SetTileIcon",
+      tile_id: tileId,
+      icon,
+    });
+  }
+
+  setTileLabel(tileId: string, label: any) {
+    this.sendMessage({
+      type: "SetTileLabel",
+      tile_id: tileId,
+      label,
+    });
+  }
+
   sendMessage(msg: unknown) {
     const ws = this.#ws;
     if (!ws) return;
