@@ -119,6 +119,13 @@ class TilepadPlugin {
         this.#emitter.emit("deep_link", { ctx: msg.ctx });
         break;
       }
+      case "TileProperties": {
+        this.#emitter.emit("tile_properties", {
+          tile_id: msg.tile_id,
+          properties: msg.properties,
+        });
+        break;
+      }
     }
   }
 
@@ -140,6 +147,23 @@ class TilepadPlugin {
 
   openUrl(url: string) {
     this.sendMessage({ type: "OpenUrl", url });
+  }
+
+  getTileProperties(tileId: string) {
+    this.sendMessage({ type: "GetTileProperties", tile_id: tileId });
+  }
+
+  setTileProperties(
+    tileId: string,
+    properties: unknown,
+    partial: boolean = true
+  ) {
+    this.sendMessage({
+      type: "SetTileProperties",
+      tile_id: tileId,
+      properties,
+      partial,
+    });
   }
 
   sendMessage(msg: unknown) {
