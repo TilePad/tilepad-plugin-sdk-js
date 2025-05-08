@@ -35,6 +35,27 @@ export interface TileInteractionContext {
   tile_id: string;
 }
 
+export type TilepadLabel = Partial<{
+  enabled: boolean;
+  label: string;
+  align: "Bottom" | "Middle" | "Top";
+  font_size: number;
+  bold: boolean;
+  italic: boolean;
+  underline: boolean;
+  outline: boolean;
+  color: string;
+  outline_color: string;
+}>;
+
+export type TilepadIcon =
+  | {
+      type: "None";
+    }
+  | { type: "PluginIcon"; plugin_id: string; icon: string }
+  | { type: "IconPack"; pack_id: string; path: string }
+  | { type: "Url"; src: string };
+
 class TilepadPlugin {
   #ws: WebSocket | null = null;
   #emitter: EventEmitter = new EventEmitter();
@@ -166,7 +187,7 @@ class TilepadPlugin {
     });
   }
 
-  setTileIcon(tileId: string, icon: any) {
+  setTileIcon(tileId: string, icon: TilepadIcon) {
     this.sendMessage({
       type: "SetTileIcon",
       tile_id: tileId,
@@ -174,7 +195,7 @@ class TilepadPlugin {
     });
   }
 
-  setTileLabel(tileId: string, label: any) {
+  setTileLabel(tileId: string, label: TilepadLabel) {
     this.sendMessage({
       type: "SetTileLabel",
       tile_id: tileId,
