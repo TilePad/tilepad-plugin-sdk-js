@@ -18,7 +18,8 @@
   "type": "module",
   "scripts": {
     "build": "tsc && npm run bundle",
-    "bundle": "rollup --config"
+    "bundle": "rollup --config",
+    "prepublishOnly": "npm run build"
   },
   "author": "Jacobtread",
   "license": "MIT",
