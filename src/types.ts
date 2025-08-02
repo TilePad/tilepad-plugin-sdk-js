@@ -28,10 +28,11 @@ export interface TileInteractionContext {
   tile_id: string;
 }
 
-export type TilepadLabel = Partial<{
+export type TileLabel = Partial<{
   enabled: boolean;
   label: string;
   align: "Bottom" | "Middle" | "Top";
+  font: string;
   font_size: number;
   bold: boolean;
   italic: boolean;
@@ -41,10 +42,32 @@ export type TilepadLabel = Partial<{
   outline_color: string;
 }>;
 
-export type TilepadIcon =
+export type TileIcon =
   | {
       type: "None";
     }
   | { type: "PluginIcon"; plugin_id: string; icon: string }
   | { type: "IconPack"; pack_id: string; path: string }
   | { type: "Url"; src: string };
+
+export interface TileModel {
+  id: string;
+  config: TileConfig;
+  properties: unknown;
+  folder_id: string;
+  plugin_id: string;
+  action_id: string;
+  position: TilePosition;
+}
+
+export interface TileConfig {
+  icon: TileIcon;
+  label: TileLabel;
+}
+
+export interface TilePosition {
+  row: number;
+  column: number;
+  row_span: number;
+  column_span: number;
+}
