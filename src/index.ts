@@ -1,62 +1,29 @@
 import { EventEmitter } from "events";
 import { getProgramArgs } from "./args";
 import { WebSocket } from "ws";
+import {
+  DeepLinkContext,
+  DisplayContext,
+  InspectorContext,
+  TileInteractionContext,
+  TilepadIcon,
+  TilepadLabel,
+} from "./types";
+import { Display } from "./display";
+import { Inspector } from "./inspector";
 
 export interface TilepadEvents {
   registered: {};
   properties: { properties: any };
   inspector_message: { inspector: Inspector; message: any };
+  display_message: { display: Display; message: any };
   inspector_open: { inspector: Inspector };
   inspector_close: { inspector: Inspector };
   deep_link: { ctx: DeepLinkContext };
   tile_clicked: { ctx: TileInteractionContext };
 }
 
-export interface DeepLinkContext {
-  url: string;
-  host: string | null;
-  path: string;
-  query: string | null;
-  fragment: string | null;
-}
-
-export interface InspectorContext {
-  profile_id: string;
-  folder_id: string;
-  plugin_id: string;
-  action_id: string;
-  tile_id: string;
-}
-
-export interface TileInteractionContext {
-  device_id: string;
-  plugin_id: string;
-  action_id: string;
-  tile_id: string;
-}
-
-export type TilepadLabel = Partial<{
-  enabled: boolean;
-  label: string;
-  align: "Bottom" | "Middle" | "Top";
-  font_size: number;
-  bold: boolean;
-  italic: boolean;
-  underline: boolean;
-  outline: boolean;
-  color: string;
-  outline_color: string;
-}>;
-
-export type TilepadIcon =
-  | {
-      type: "None";
-    }
-  | { type: "PluginIcon"; plugin_id: string; icon: string }
-  | { type: "IconPack"; pack_id: string; path: string }
-  | { type: "Url"; src: string };
-
-class TilepadPlugin {
+export class TilepadPlugin {
   #ws: WebSocket | null = null;
   #emitter: EventEmitter = new EventEmitter();
 
@@ -90,6 +57,7 @@ class TilepadPlugin {
     this.#emitter.on(event as string, listener);
     return this;
   }
+
   off<K extends keyof TilepadEvents>(
     event: K,
     listener: (payload: TilepadEvents[K]) => void
@@ -119,20 +87,28 @@ class TilepadPlugin {
         break;
       }
       case "RecvFromInspector": {
-        const inspector = new Inspector(msg.ctx);
+        const inspector = new Inspector(this, msg.ctx);
         this.#emitter.emit("inspector_message", {
           inspector,
           message: msg.message,
         });
         break;
       }
+      case "RecvFromDisplay": {
+        const display = new Display(this, msg.ctx);
+        this.#emitter.emit("display_message", {
+          display,
+          message: msg.message,
+        });
+        break;
+      }
       case "InspectorOpen": {
-        const inspector = new Inspector(msg.ctx);
+        const inspector = new Inspector(this, msg.ctx);
         this.#emitter.emit("inspector_open", { inspector });
         break;
       }
       case "InspectorClose": {
-        const inspector = new Inspector(msg.ctx);
+        const inspector = new Inspector(this, msg.ctx);
         this.#emitter.emit("inspector_close", { inspector });
         break;
       }
@@ -144,6 +120,19 @@ class TilepadPlugin {
         this.#emitter.emit("tile_properties", {
           tile_id: msg.tile_id,
           properties: msg.properties,
+        });
+        break;
+      }
+      case "DeviceTiles": {
+        this.#emitter.emit("device_tiles", {
+          device_id: msg.device_id,
+          tiles: msg.tiles,
+        });
+        break;
+      }
+      case "VisibleTiles": {
+        this.#emitter.emit("visible_tiles", {
+          tiles: msg.tiles,
         });
         break;
       }
@@ -164,6 +153,10 @@ class TilepadPlugin {
 
   sendToInspector(ctx: InspectorContext, message: unknown) {
     this.sendMessage({ type: "SendToInspector", ctx, message });
+  }
+
+  sendToDisplay(ctx: DisplayContext, message: unknown) {
+    this.sendMessage({ type: "SendToDisplay", ctx, message });
   }
 
   openUrl(url: string) {
@@ -203,6 +196,10 @@ class TilepadPlugin {
     });
   }
 
+  getVisibleTiles() {
+    this.sendMessage({ type: "GetVisibleTiles" });
+  }
+
   sendMessage(msg: unknown) {
     const ws = this.#ws;
     if (!ws) return;
@@ -212,17 +209,5 @@ class TilepadPlugin {
 }
 
 const tilepad = new TilepadPlugin();
-
-export class Inspector {
-  ctx: InspectorContext;
-
-  constructor(ctx: InspectorContext) {
-    this.ctx = ctx;
-  }
-
-  send(msg: unknown) {
-    tilepad.sendToInspector(this.ctx, msg);
-  }
-}
 
 export default tilepad;

@@ -1,5 +1,5 @@
 {
-  "name": "tilepad-sdk",
+  "name": "@tilepad/sdk",
   "version": "0.0.1",
   "description": "SDK for tilepad plugins",
   "main": "dist/index.cjs",
@@ -18,8 +18,7 @@
   "type": "module",
   "scripts": {
     "build": "tsc && npm run bundle",
-    "bundle": "rollup --config",
-    "test": "npm run build && jest"
+    "bundle": "rollup --config"
   },
   "author": "Jacobtread",
   "license": "MIT",
