@@ -38,7 +38,7 @@ export interface TilepadEvents {
   inspector_open: { inspector: Inspector };
   inspector_close: { inspector: Inspector };
   deep_link: { ctx: DeepLinkContext };
-  tile_clicked: { ctx: TileInteractionContext };
+  tile_clicked: { ctx: TileInteractionContext; properties: any };
   device_tiles: { device_id: string; tiles: TileModel[] };
   visible_tiles: { tiles: TileModel[] };
 }
@@ -78,6 +78,10 @@ export class TilepadPlugin {
     if (!ws) return;
 
     ws.send(JSON.stringify(msg));
+  }
+
+  #emit<K extends keyof TilepadEvents>(event: K, payload: TilepadEvents[K]) {
+    this.#emitter.emit(event as string, payload);
   }
 
   on<K extends keyof TilepadEvents>(
@@ -129,15 +133,15 @@ export class TilepadPlugin {
     if (!msg.type) return;
     switch (msg.type) {
       case "Registered": {
-        this.#emitter.emit("registered", {});
+        this.#emit("registered", {});
         break;
       }
       case "Properties": {
-        this.#emitter.emit("properties", { properties: msg.properties });
+        this.#emit("properties", { properties: msg.properties });
         break;
       }
       case "TileClicked": {
-        this.#emitter.emit("tile_clicked", {
+        this.#emit("tile_clicked", {
           ctx: msg.ctx,
           properties: msg.properties,
         });
@@ -145,7 +149,7 @@ export class TilepadPlugin {
       }
       case "RecvFromInspector": {
         const inspector = new Inspector(this, msg.ctx);
-        this.#emitter.emit("inspector_message", {
+        this.#emit("inspector_message", {
           inspector,
           message: msg.message,
         });
@@ -153,7 +157,7 @@ export class TilepadPlugin {
       }
       case "RecvFromDisplay": {
         const display = new Display(this, msg.ctx);
-        this.#emitter.emit("display_message", {
+        this.#emit("display_message", {
           display,
           message: msg.message,
         });
@@ -161,34 +165,34 @@ export class TilepadPlugin {
       }
       case "InspectorOpen": {
         const inspector = new Inspector(this, msg.ctx);
-        this.#emitter.emit("inspector_open", { inspector });
+        this.#emit("inspector_open", { inspector });
         break;
       }
       case "InspectorClose": {
         const inspector = new Inspector(this, msg.ctx);
-        this.#emitter.emit("inspector_close", { inspector });
+        this.#emit("inspector_close", { inspector });
         break;
       }
       case "DeepLink": {
-        this.#emitter.emit("deep_link", { ctx: msg.ctx });
+        this.#emit("deep_link", { ctx: msg.ctx });
         break;
       }
       case "TileProperties": {
-        this.#emitter.emit("tile_properties", {
+        this.#emit("tile_properties", {
           tile_id: msg.tile_id,
           properties: msg.properties,
         });
         break;
       }
       case "DeviceTiles": {
-        this.#emitter.emit("device_tiles", {
+        this.#emit("device_tiles", {
           device_id: msg.device_id,
           tiles: msg.tiles,
         });
         break;
       }
       case "VisibleTiles": {
-        this.#emitter.emit("visible_tiles", {
+        this.#emit("visible_tiles", {
           tiles: msg.tiles,
         });
         break;
