@@ -28,6 +28,7 @@ export type {
   TileModel,
   TileConfig,
   TilePosition,
+  DeviceIndicator,
 };
 
 export interface TilepadEvents {
