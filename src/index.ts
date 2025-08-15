@@ -11,6 +11,7 @@ import {
   TileModel,
   TileConfig,
   TilePosition,
+  DeviceIndicator,
 } from "./types";
 import { Display } from "./display";
 import { Inspector } from "./inspector";
@@ -86,7 +87,7 @@ export class TilepadPlugin {
 
   on<K extends keyof TilepadEvents>(
     event: K,
-    listener: (payload: TilepadEvents[K]) => void
+    listener: (payload: TilepadEvents[K]) => void,
   ) {
     this.#emitter.on(event as string, listener);
     return this;
@@ -94,7 +95,7 @@ export class TilepadPlugin {
 
   off<K extends keyof TilepadEvents>(
     event: K,
-    listener: (payload: TilepadEvents[K]) => void
+    listener: (payload: TilepadEvents[K]) => void,
   ) {
     this.#emitter.off(event as string, listener);
     return this;
@@ -102,7 +103,7 @@ export class TilepadPlugin {
 
   once<K extends keyof TilepadEvents>(
     event: K,
-    listener: (payload: TilepadEvents[K]) => void
+    listener: (payload: TilepadEvents[K]) => void,
   ) {
     const onceListener = (payload: TilepadEvents[K]) => {
       this.#emitter.off(event as string, onceListener);
@@ -115,7 +116,7 @@ export class TilepadPlugin {
   onceFilter<K extends keyof TilepadEvents>(
     event: K,
     filter: (payload: TilepadEvents[K]) => boolean,
-    listener: (payload: TilepadEvents[K]) => void
+    listener: (payload: TilepadEvents[K]) => void,
   ) {
     const onceListener = (payload: TilepadEvents[K]) => {
       if (!filter(payload)) {
@@ -287,7 +288,7 @@ export class TilepadPlugin {
         (event) => event.tile_id === tileId,
         ({ properties }) => {
           resolve(properties);
-        }
+        },
       );
 
       this.requestTileProperties(tileId);
@@ -304,7 +305,7 @@ export class TilepadPlugin {
   setTileProperties(
     tileId: string,
     properties: unknown,
-    partial: boolean = true
+    partial: boolean = true,
   ) {
     this.#sendMessage({
       type: "SetTileProperties",
@@ -364,6 +365,29 @@ export class TilepadPlugin {
       });
 
       this.requestVisibleTiles();
+    });
+  }
+
+  /**
+   * Display an indicator on a specific tile on the device
+   *
+   * @param deviceId ID of the device to display the indicator on
+   * @param tileId ID of the tile to display on
+   * @param indicator The indicator to display
+   * @param duration Duration to display the indicator on
+   */
+  displayIndicator(
+    deviceId: string,
+    tileId: string,
+    indicator: DeviceIndicator,
+    duration: number,
+  ) {
+    this.#sendMessage({
+      type: "DisplayIndicator",
+      device_id: deviceId,
+      tile_id: tileId,
+      indicator,
+      duration,
     });
   }
 }

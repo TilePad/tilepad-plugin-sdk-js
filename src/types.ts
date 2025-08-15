@@ -71,3 +71,11 @@ export interface TilePosition {
   row_span: number;
   column_span: number;
 }
+
+export enum DeviceIndicator {
+  Error = "Error",
+  Success = "Success",
+  Warning = "Warning",
+  Loading = "Loading",
+  None = "None",
+}
