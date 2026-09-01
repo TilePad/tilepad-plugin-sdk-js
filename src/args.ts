@@ -1,4 +1,9 @@
-export function getProgramArgs() {
+export interface ProgramArgs {
+  pluginId: string;
+  connectUrl: string;
+}
+
+export function getProgramArgs(): ProgramArgs {
   // Skip the first two arguments (node and script path)
   const args = process.argv.slice(2);
 

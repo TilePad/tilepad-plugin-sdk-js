@@ -1,4 +1,4 @@
-import { EventEmitter } from "events";
+import { EventEmitter } from "./eventEmitter";
 import { getProgramArgs } from "./args";
 import { WebSocket } from "ws";
 import {
@@ -47,12 +47,12 @@ export interface TilepadEvents {
 
 export class TilepadPlugin {
   #ws: WebSocket | null = null;
-  #emitter: EventEmitter = new EventEmitter();
+  #emitter: EventEmitter<TilepadEvents> = new EventEmitter();
 
   /**
    * Connect and registered the Tilepad plugin with the desktop app
    */
-  connect() {
+  connect(): void {
     const args = getProgramArgs();
     const ws = new WebSocket(args.connectUrl);
     this.#ws = ws;
@@ -75,42 +75,45 @@ export class TilepadPlugin {
     };
   }
 
-  #sendMessage(msg: unknown) {
+  #sendMessage(msg: unknown): void {
     const ws = this.#ws;
     if (!ws) return;
 
     ws.send(JSON.stringify(msg));
   }
 
-  #emit<K extends keyof TilepadEvents>(event: K, payload: TilepadEvents[K]) {
-    this.#emitter.emit(event as string, payload);
+  #emit<K extends keyof TilepadEvents>(
+    event: K,
+    payload: TilepadEvents[K],
+  ): void {
+    this.#emitter.emit(event, payload);
   }
 
   on<K extends keyof TilepadEvents>(
     event: K,
     listener: (payload: TilepadEvents[K]) => void,
-  ) {
-    this.#emitter.on(event as string, listener);
+  ): this {
+    this.#emitter.on(event, listener);
     return this;
   }
 
   off<K extends keyof TilepadEvents>(
     event: K,
     listener: (payload: TilepadEvents[K]) => void,
-  ) {
-    this.#emitter.off(event as string, listener);
+  ): this {
+    this.#emitter.off(event, listener);
     return this;
   }
 
   once<K extends keyof TilepadEvents>(
     event: K,
     listener: (payload: TilepadEvents[K]) => void,
-  ) {
+  ): this {
     const onceListener = (payload: TilepadEvents[K]) => {
-      this.#emitter.off(event as string, onceListener);
+      this.#emitter.off(event, onceListener);
       listener(payload);
     };
-    this.#emitter.on(event as string, onceListener);
+    this.#emitter.on(event, onceListener);
     return this;
   }
 
@@ -118,20 +121,20 @@ export class TilepadPlugin {
     event: K,
     filter: (payload: TilepadEvents[K]) => boolean,
     listener: (payload: TilepadEvents[K]) => void,
-  ) {
+  ): this {
     const onceListener = (payload: TilepadEvents[K]) => {
       if (!filter(payload)) {
         return;
       }
 
-      this.#emitter.off(event as string, onceListener);
+      this.#emitter.off(event, onceListener);
       listener(payload);
     };
-    this.#emitter.on(event as string, onceListener);
+    this.#emitter.on(event, onceListener);
     return this;
   }
 
-  #onMessage(msg: any) {
+  #onMessage(msg: any): void {
     if (!msg.type) return;
     switch (msg.type) {
       case "Registered": {
@@ -202,14 +205,14 @@ export class TilepadPlugin {
     }
   }
 
-  #registerPlugin(pluginId: string) {
+  #registerPlugin(pluginId: string): void {
     this.#sendMessage({ type: "RegisterPlugin", plugin_id: pluginId });
   }
 
   /**
    * Request the current plugin properties
    */
-  requestProperties() {
+  requestProperties(): void {
     this.#sendMessage({ type: "GetProperties" });
   }
 
@@ -234,7 +237,7 @@ export class TilepadPlugin {
    * @param properties The plugin properties
    * @param partial Whether to perform a partial update or replace
    */
-  setProperties(properties: unknown, partial: boolean = true) {
+  setProperties(properties: unknown, partial: boolean = true): void {
     this.#sendMessage({ type: "SetProperties", properties, partial });
   }
 
@@ -244,7 +247,7 @@ export class TilepadPlugin {
    * @param ctx Context data for the inspector
    * @param message Message to send to the inspector
    */
-  sendToInspector(ctx: InspectorContext, message: unknown) {
+  sendToInspector(ctx: InspectorContext, message: unknown): void {
     this.#sendMessage({ type: "SendToInspector", ctx, message });
   }
 
@@ -254,7 +257,7 @@ export class TilepadPlugin {
    * @param ctx Context data for the display
    * @param message Message to send to the display
    */
-  sendToDisplay(ctx: DisplayContext, message: unknown) {
+  sendToDisplay(ctx: DisplayContext, message: unknown): void {
     this.#sendMessage({ type: "SendToDisplay", ctx, message });
   }
 
@@ -263,7 +266,7 @@ export class TilepadPlugin {
    *
    * @param url The URL to open
    */
-  openUrl(url: string) {
+  openUrl(url: string): void {
     this.#sendMessage({ type: "OpenUrl", url });
   }
 
@@ -272,7 +275,7 @@ export class TilepadPlugin {
    *
    * @param tileId The ID of the tile
    */
-  requestTileProperties(tileId: string) {
+  requestTileProperties(tileId: string): void {
     this.#sendMessage({ type: "GetTileProperties", tile_id: tileId });
   }
 
@@ -282,7 +285,7 @@ export class TilepadPlugin {
    * @param tileId The ID of the tile
    * @returns The current tile properties
    */
-  getTileProperties(tileId: string) {
+  getTileProperties(tileId: string): Promise<any> {
     return new Promise((resolve) => {
       this.onceFilter(
         "tile_properties",
@@ -307,7 +310,7 @@ export class TilepadPlugin {
     tileId: string,
     properties: unknown,
     partial: boolean = true,
-  ) {
+  ): void {
     this.#sendMessage({
       type: "SetTileProperties",
       tile_id: tileId,
@@ -322,7 +325,7 @@ export class TilepadPlugin {
    * @param tileId The ID of the tile
    * @param icon The new icon for the tile
    */
-  setTileIcon(tileId: string, icon: TileIcon) {
+  setTileIcon(tileId: string, icon: TileIcon): void {
     this.#sendMessage({
       type: "SetTileIcon",
       tile_id: tileId,
@@ -336,7 +339,7 @@ export class TilepadPlugin {
    * @param tileId The ID of the tile
    * @param label The new label for the tile
    */
-  setTileLabel(tileId: string, label: TileLabel) {
+  setTileLabel(tileId: string, label: TileLabel): void {
     this.#sendMessage({
       type: "SetTileLabel",
       tile_id: tileId,
@@ -347,7 +350,7 @@ export class TilepadPlugin {
   /**
    * Requests the list of visible tiles
    */
-  requestVisibleTiles() {
+  requestVisibleTiles(): void {
     this.#sendMessage({ type: "GetVisibleTiles" });
   }
 
@@ -382,7 +385,7 @@ export class TilepadPlugin {
     tileId: string,
     indicator: DeviceIndicator,
     duration: number,
-  ) {
+  ): void {
     this.#sendMessage({
       type: "DisplayIndicator",
       device_id: deviceId,
@@ -393,6 +396,6 @@ export class TilepadPlugin {
   }
 }
 
-const tilepad = new TilepadPlugin();
+const tilepad: TilepadPlugin = new TilepadPlugin();
 
 export default tilepad;

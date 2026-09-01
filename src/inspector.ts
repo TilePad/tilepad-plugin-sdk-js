@@ -10,7 +10,7 @@ export class Inspector {
     this.tilepad = tilepad;
   }
 
-  send(msg: unknown) {
+  send(msg: unknown): void {
     this.tilepad.sendToInspector(this.ctx, msg);
   }
 }

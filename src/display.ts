@@ -10,7 +10,7 @@ export class Display {
     this.tilepad = tilepad;
   }
 
-  send(msg: unknown) {
+  send(msg: unknown): void {
     this.tilepad.sendToDisplay(this.ctx, msg);
   }
 }
