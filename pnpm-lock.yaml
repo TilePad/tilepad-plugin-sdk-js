@@ -9,17 +9,17 @@ importers:
   .:
     dependencies:
       ws:
-        specifier: ^8.18.1
+        specifier: ^8.21.3
         version: 8.21.3
     devDependencies:
       '@types/node':
-        specifier: ^22.14.0
+        specifier: ^22.20.1
         version: 22.20.1
       '@types/ws':
         specifier: ^8.18.1
         version: 8.18.1
       prettier:
-        specifier: ^3.4.2
+        specifier: ^3.9.6
         version: 3.9.6
       rolldown:
         specifier: ^1.2.6

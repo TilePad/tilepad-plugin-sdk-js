@@ -1,6 +1,6 @@
 {
   "name": "@tilepad/sdk",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "SDK for tilepad plugins",
   "main": "dist/index.cjs",
   "module": "dist/index.mjs",
@@ -24,15 +24,15 @@
   "author": "Jacobtread",
   "license": "MIT",
   "devDependencies": {
-    "@types/node": "^22.14.0",
+    "@types/node": "^22.20.1",
     "@types/ws": "^8.18.1",
-    "prettier": "^3.4.2",
+    "prettier": "^3.9.6",
     "rolldown": "^1.2.6",
     "rolldown-plugin-dts": "^0.28.4",
     "typescript": "^7.0.2"
   },
   "dependencies": {
-    "ws": "^8.18.1"
+    "ws": "^8.21.3"
   },
   "packageManager": "pnpm@11.25.0+sha512.5cde925b4f075f725eb71fbae18a42ffe784524789f19b61c731cb8721ec28aaee160e01a8d5af4fedb2a42cdbf300efe23db356b0d4a17b4d63e11f8ab7c956"
 }
