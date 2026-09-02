@@ -19,7 +19,7 @@ export default defineConfig([
     ],
   },
 
-  // Browser builds
+  // Node builds
   {
     input: "src/index.ts",
     output: [
@@ -37,6 +37,6 @@ export default defineConfig([
         minify: true,
       },
     ],
-    platform: "browser",
+    platform: "node",
   },
 ]);
